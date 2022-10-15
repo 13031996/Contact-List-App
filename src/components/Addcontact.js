@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { storage } from "./firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link, useNavigate } from "react-router-dom";
+import { v4 } from "uuid";
 
 const Addcontact = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [profile, setProfile] = useState(null);
+  const [url, setUrl] = useState(null);
+
   const [phone, setPhone] = useState("");
   const [type, setType] = useState("");
   const [isWhatsapp, setIsWhatsapp] = useState(false);
@@ -12,21 +18,37 @@ const Addcontact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // upload to fireabse
+    //   // upload to fireabse
+
+    if (profile == null) return;
+    const imageRef = ref(storage, `image/${profile.name + v4()}`);
+    uploadBytes(imageRef, profile).then(() => {
+      alert("Image Uploaded");
+      getDownloadURL(imageRef)
+        .then((url) => {
+          console.log(url);
+
+          setUrl(url);
+        })
+        .catch((error) => {
+          console.log(error.message, "error getting the image url");
+        });
+      setProfile(null);
+    });
 
     let contacts = {
       name,
       phone,
       type,
       isWhatsapp,
-      // profile: database returned url
+      url,
     };
     const lists =
       localStorage.getItem("lists") && localStorage.getItem("lists").length > 0
         ? JSON.parse(localStorage.getItem("lists"))
         : [];
     localStorage.setItem("lists", JSON.stringify([...lists, contacts]));
-    navigate("/");
+    // navigate("/");
   };
 
   return (
@@ -38,9 +60,9 @@ const Addcontact = () => {
               <p className="h4 text-primary fw-bold"> Create Contact</p>
             </div>
           </div>
-          <div className="row">
-            <div className="col-md-4">
-              <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
+            <div className="row  align-items-center">
+              <div className="col-md-4">
                 <div className="mb-2">
                   <input
                     type="text"
@@ -50,14 +72,16 @@ const Addcontact = () => {
                     onChange={(e) => setName(e.target.value)}
                     id="name"
                     name="name"
+                    autoFocus
                     required
                   />
                 </div>
                 <div className="mb-2">
                   <input
-                    type="text"
+                    type="file"
                     className="form-control"
-                    placeholder="Profile Picture Url"
+                    label="upload"
+                    onChange={(e) => setProfile(e.target.files[0])}
                   />
                 </div>
                 <div className="mb-2">
@@ -109,18 +133,29 @@ const Addcontact = () => {
                   </label>
                 </div>
                 <div className="mb-2">
-                  <input
+                  <button
                     type="submit"
                     className="btn btn-primary"
-                    value="Create"
-                  />
+                    // value="Create"
+                  >
+                    {" "}
+                    Create
+                  </button>
                   <Link to={"/contact-list"} className="btn btn-dark ms-2">
                     Cancel
                   </Link>
                 </div>
-              </form>
+              </div>
+              <div className="col-md-6">
+                <img
+                  src={url}
+                  //onChange={(e) => setUrl(e.target.value)}
+                  alt=""
+                  className="contact-img"
+                />
+              </div>
             </div>
-          </div>
+          </form>
         </div>
       </section>
     </div>

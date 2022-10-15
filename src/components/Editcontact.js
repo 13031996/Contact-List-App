@@ -7,7 +7,7 @@ const Editcontact = () => {
   const [phone, setPhone] = useState("");
   const [type, setType] = useState("");
   const [isWhatsapp, setIsWhatsapp] = useState(false);
-  console.log(useParams, "check");
+  // console.log(useParams, "check");
   const { contactId } = useParams();
   // alert(contactId);
   const handleSubmit = (e) => {
@@ -54,9 +54,9 @@ const Editcontact = () => {
               <p className="h4 text-info fw-bold"> Edit Contact</p>
             </div>
           </div>
-          <div className="row align-items-center">
-            <div className="col-md-4">
-              <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
+            <div className="row align-items-center">
+              <div className="col-md-4">
                 <div className="mb-2">
                   <input
                     type="text"
@@ -96,12 +96,8 @@ const Editcontact = () => {
                       placeholder="Type"
                     >
                       <option>Type</option>
-                      <option selected={type === "Personal"} value="Personal">
-                        Personal
-                      </option>
-                      <option selected={type === "Office"} value="Office">
-                        Office
-                      </option>
+                      <option value="Personal">Personal</option>
+                      <option value="Office">Office</option>
                     </select>
                   </div>
                 </div>
@@ -132,16 +128,16 @@ const Editcontact = () => {
                     Cancel
                   </Link>
                 </div>
-              </form>
+              </div>
+              <div className="col-md-6">
+                <img
+                  src="https://www.kindpng.com/picc/m/78-786207_user-avatar-png-user-avatar-icon-png-transparent.png"
+                  alt=""
+                  className="contact-img"
+                />
+              </div>
             </div>
-            <div className="col-md-6">
-              <img
-                src="https://www.kindpng.com/picc/m/78-786207_user-avatar-png-user-avatar-icon-png-transparent.png"
-                alt=""
-                className="contact-img"
-              />
-            </div>
-          </div>
+          </form>
         </div>
       </section>
     </div>

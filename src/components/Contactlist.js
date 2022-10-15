@@ -67,7 +67,7 @@ const Contactlist = () => {
                         <div className="row align-items-center d-flex justify-content-around">
                           <div className="col-md-4">
                             <img
-                              src="https://www.kindpng.com/picc/m/78-786207_user-avatar-png-user-avatar-icon-png-transparent.png"
+                              src={contact.url}
                               alt=""
                               className=" contact-img"
                             />
