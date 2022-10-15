@@ -25,8 +25,22 @@ const Addcontact = () => {
     uploadBytes(imageRef, profile).then(() => {
       alert("Image Uploaded");
       getDownloadURL(imageRef)
-        .then((url) => {
-          console.log(url);
+        .then((urlRes) => {
+          let contacts = {
+            name,
+            phone,
+            type,
+            isWhatsapp,
+            url: urlRes,
+          };
+          const lists =
+            localStorage.getItem("lists") &&
+            localStorage.getItem("lists").length > 0
+              ? JSON.parse(localStorage.getItem("lists"))
+              : [];
+          localStorage.setItem("lists", JSON.stringify([...lists, contacts]));
+          navigate("/");
+          console.log(urlRes);
 
           setUrl(url);
         })
@@ -35,20 +49,6 @@ const Addcontact = () => {
         });
       setProfile(null);
     });
-
-    let contacts = {
-      name,
-      phone,
-      type,
-      isWhatsapp,
-      url,
-    };
-    const lists =
-      localStorage.getItem("lists") && localStorage.getItem("lists").length > 0
-        ? JSON.parse(localStorage.getItem("lists"))
-        : [];
-    localStorage.setItem("lists", JSON.stringify([...lists, contacts]));
-    // navigate("/");
   };
 
   return (
@@ -124,7 +124,6 @@ const Addcontact = () => {
                       name="isWhatsapp"
                       checked={isWhatsapp}
                       value="yes"
-                      // value={isWhatsapp}
                       onChange={(e) =>
                         setIsWhatsapp(e.target.checked, e.target.value)
                       }
@@ -133,11 +132,7 @@ const Addcontact = () => {
                   </label>
                 </div>
                 <div className="mb-2">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    // value="Create"
-                  >
+                  <button type="submit" className="btn btn-primary">
                     {" "}
                     Create
                   </button>
@@ -145,14 +140,6 @@ const Addcontact = () => {
                     Cancel
                   </Link>
                 </div>
-              </div>
-              <div className="col-md-6">
-                <img
-                  src={url}
-                  //onChange={(e) => setUrl(e.target.value)}
-                  alt=""
-                  className="contact-img"
-                />
               </div>
             </div>
           </form>

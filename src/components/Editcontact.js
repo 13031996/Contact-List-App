@@ -1,5 +1,8 @@
+import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+import { storage } from "./firebase";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { v4 } from "uuid";
 
 const Editcontact = () => {
   const navigate = useNavigate();
@@ -7,42 +10,66 @@ const Editcontact = () => {
   const [phone, setPhone] = useState("");
   const [type, setType] = useState("");
   const [isWhatsapp, setIsWhatsapp] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [url, setUrl] = useState(null);
   // console.log(useParams, "check");
   const { contactId } = useParams();
   // alert(contactId);
   const handleSubmit = (e) => {
     e.preventDefault();
-    const contacts = {
-      name,
-      phone,
-      type,
-      isWhatsapp,
-    };
 
-    let lists =
-      localStorage.getItem("lists") && localStorage.getItem("lists").length > 0
-        ? JSON.parse(localStorage.getItem("lists"))
-        : [];
+    if (profile == null) return;
+    const imageRef = ref(storage, `image/${profile.name + v4()}`);
+    uploadBytes(imageRef, profile).then(() => {
+      alert("image uploaded");
+      getDownloadURL(imageRef)
+        .then((urlRes) => {
+          let contacts = {
+            name,
+            phone,
+            type,
+            isWhatsapp,
+            profile,
+            url: urlRes,
+          };
 
-    const _list = lists.map((contact, contactIndex) => {
-      if (contactIndex == localStorage.getItem("editItem")) {
-        return contacts;
-      } else {
-        return contact;
-      }
+          let lists =
+            localStorage.getItem("lists") &&
+            localStorage.getItem("lists").length > 0
+              ? JSON.parse(localStorage.getItem("lists"))
+              : [];
+
+          const _list = lists.map((contact, contactIndex) => {
+            if (contactIndex == localStorage.getItem("editItem")) {
+              return contacts;
+            } else {
+              return contact;
+            }
+          });
+          localStorage.setItem("lists", JSON.stringify(_list));
+          navigate("/");
+
+          console.log(url);
+
+          setUrl(url);
+        })
+        .catch((error) => {
+          console.log(error.message, "error getting the image url");
+        });
+      setProfile(null);
     });
-    localStorage.setItem("lists", JSON.stringify(_list));
-    navigate("/");
   };
 
   useEffect(() => {
     if (contactId) {
       const list = JSON.parse(localStorage.getItem("lists"));
-      const { name, phone, type, isWhatsapp } = list[contactId];
+      const { name, phone, type, isWhatsapp, url, profile } = list[contactId];
       setName(name);
       setPhone(phone);
       setIsWhatsapp(isWhatsapp);
       setType(type);
+      setUrl(url);
+      setProfile(profile);
     }
   }, [contactId]);
   return (
@@ -68,9 +95,10 @@ const Editcontact = () => {
                 </div>
                 <div className="mb-2">
                   <input
-                    type="text"
+                    type="file"
                     className="form-control"
-                    placeholder="Profile Picture Url"
+                    label="upload"
+                    onChange={(e) => setProfile(e.target.files[0])}
                   />
                 </div>
                 <div className="mb-2">
@@ -130,11 +158,7 @@ const Editcontact = () => {
                 </div>
               </div>
               <div className="col-md-6">
-                <img
-                  src="https://www.kindpng.com/picc/m/78-786207_user-avatar-png-user-avatar-icon-png-transparent.png"
-                  alt=""
-                  className="contact-img"
-                />
+                <img src={url} alt="" className="contact-img" />
               </div>
             </div>
           </form>
